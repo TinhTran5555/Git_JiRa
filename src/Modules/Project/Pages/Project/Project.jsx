@@ -29,12 +29,13 @@ import projectAPIs from '../../../../app/apis/projectAPIs/projectAPIs';
 import Loader from '../../../../UI/Display/Loader';
 import Members from '../../Components/Members';
 import { useState } from 'react';
+import EditProject from '../../Components/EditProject';
 import DialogProject from '../../Components/DialogProject/DialogProject';
 import DialogProjectDelete from '../../Components/DialogProject/DialogProjectDelete';
 import {
   deleteProjectThunk,
   getAllProjectsThunk,
-
+  getProjectDetailThunk
 
 } from '../../slice/projectSlice';
 import { authSelector, projectSelector } from '../../../../app/store';
@@ -74,13 +75,12 @@ const Project = () => {
 
   const { data: userData } = useSelector(authSelector);
   const {
-    searchs,
+  
     projects,
     isLoading: getLoading,
     error: projectError,
   } = useSelector(projectSelector);
-  console.log(projects);
-console.log(searchs);
+
   const deleteProjectHandler = async (id) => {
     try {
       dispatch(deleteProjectThunk(id))
@@ -99,17 +99,6 @@ console.log(searchs);
   useEffect(() => {
     dispatch(getAllProjectsThunk());
   }, []);
-  // useEffect(() => {
-  //   dispatch(getSearchProjectsThunk());
-  // },  );
-  // useEffect((keyword) => {
-  //   if (!keyword) {
-      
-  //     dispatch(getSearchProjectsThunk(""));
-  //   } else {
-  //     dispatch(getSearchProjectsThunk(keyword));
-  //   }
-  // }, keyword);
 
   const rows = projects?.map((row) => {
     const { id, projectName, categoryName, members, creator, description } =
@@ -117,6 +106,7 @@ console.log(searchs);
     const formattedDescription = description.replace(/<[^>]*>/g, '');
 
     const dialogSettingHandler = (id, projectName) => {
+      console.log(id);
       setIsDialog(true);
       setProjectPayload({ id, projectName });
     };
@@ -197,9 +187,11 @@ console.log(searchs);
               alignItems: 'center',
             }}
           >
-            <Button color='success'>
-              <FontAwesomeIcon icon={faPen} />
-            </Button>
+      
+              <EditProject dataFromParent={id}
+              
+               />  
+       
             <Button
               onClick={() => {
                 dispatchAlert({ type: alertCase.reset });
@@ -217,7 +209,7 @@ console.log(searchs);
 
 
   return (
-    <Container maxWidth='xl'>
+    <Container maxWidth='xl' >
       <DialogProject
         onClose={() => setIsDialog(false)}
         isDialogOpen={isDialogOpen}

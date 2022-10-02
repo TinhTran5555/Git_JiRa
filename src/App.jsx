@@ -23,6 +23,10 @@ const Project = React.lazy(() => import("./Modules/Project/Pages/Project"));
 const CreateProject = React.lazy(() =>
   import("./Modules/Project/Pages/CreateProject")
 );
+const EditProject = React.lazy(() =>
+  import("./Modules/Project/Components/EditProject")
+);
+
 
 function App() {
   // const { data, isLoading, error } = useSelector(authSelector);
@@ -79,6 +83,10 @@ function App() {
               <Route
                 path="/project/create-project"
                 element={<CreateProject />}
+              />
+               <Route
+                path="/project/edit-project"
+                element={<EditProject />}
               />
               <Route path="/project">
                 <Route path="board" element={<Board />} />

@@ -94,6 +94,7 @@ export default class RichTextEditor extends React.Component {
             spellCheck={true}
           />
         </Box>
+        
       </Box>
     );
   }

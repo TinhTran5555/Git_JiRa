@@ -4,14 +4,7 @@ const projectAPIs = {
   getAllProjects: () => {
     return axiosClient.get('Project/getAllProject');
   },
-  // getSearchProjects: (keyword) => {
-  //   const params = new URLSearchParams();
-  //   params.append('keyword', keyword);
-  //   return axiosClient.get('Project/getAllProject', {
-  //     params,
-  //   }
-  //   );
-  // },
+
   getSearchProjects: (keyword) => {
     if (!keyword) {
       return axiosClient.get("Project/getAllProject");
@@ -25,6 +18,14 @@ const projectAPIs = {
     }
     
   },
+  getProjectDetail: (id) => {
+  
+    const params = new URLSearchParams();
+    params.append('id', id);
+    return axiosClient.get('Project/getProjectDetail', {
+      params,
+    });
+  },
 
   createProject: (projectInfo) => {
     return axiosClient.post('Project/createProjectAuthorize', projectInfo);
@@ -37,7 +38,14 @@ const projectAPIs = {
       params,
     });
   },
-
+  updateProject: (id) => {
+    const params = new URLSearchParams();
+    params.append('projectId', id);
+    return axiosClient.put('Project/updateProject', {
+      params,
+    });
+  },
+ 
   removeUserFromProject: (userProject) => {
    
     return axiosClient.post('Project/removeUserFromProject', userProject);

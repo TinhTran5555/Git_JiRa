@@ -4,15 +4,17 @@ import projectAPIs from '../../../app/apis/projectAPIs/projectAPIs';
 
 const initialState = {
   projects: [],
-  
+  projectDetail: [],
   isLoading: false,
   error: '',
 };
 
 const {
   getAllProjects,
+  getProjectDetail,
   createProject,
   deleteProject,
+  updateProject,
   assignUser,
   removeUserFromProject,
   getSearchProjects
@@ -38,9 +40,18 @@ export const getSearchProjectsThunk = createAsyncThunk(
     }
   }
 );
+export const getProjectDetailThunk = thunk.request(
+  'project/getProjectDetail',
+  getProjectDetail
+);
+
 export const createProjectThunk = thunk.request(
   'project/createProject',
   createProject
+);
+export const updateProjectThunk = thunk.request(
+  'project/eidtProject',
+  updateProject
 );
 
 export const deleteProjectThunk = thunk.request(
@@ -86,6 +97,19 @@ const projectSlice = createSlice({
       .addCase(getSearchProjectsThunk.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.error = payload;
+      });
+      builder
+      .addCase(getProjectDetailThunk.pending, (state) => {
+       
+      })
+      .addCase(getProjectDetailThunk.fulfilled, (state, { payload }) => {
+       
+        state.projectDetail = payload;
+      })
+      .addCase(getProjectDetailThunk.rejected, (state, { payload }) => {
+      
+        state.error = payload;
+     
       });
   },
 });
