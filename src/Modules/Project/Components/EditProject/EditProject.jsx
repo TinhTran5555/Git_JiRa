@@ -25,13 +25,14 @@ import projectCategory from "../../../../app/apis/projectCategory/projectCategor
 import { useForm } from "react-hook-form";
 
 import { useDispatch, useSelector } from "react-redux";
-import { projectSelector } from '../../../../app/store';
+import { projectSelector } from "../../../../app/store";
 
 import {
   updateProjectThunk,
   getProjectDetailThunk,
-  getAllProjectsThunk
+  getAllProjectsThunk,
 } from "../../slice/projectSlice";
+import { current } from "@reduxjs/toolkit";
 
 const { getProjectCategory } = projectCategory;
 const categoryProjectMap = {
@@ -85,17 +86,14 @@ const alertReducer = (state, { type, payload }) => {
 };
 
 export default function EditProject(projectId) {
-    const {dataFromParent} = projectId
-    
-    const {
-        projectDetail
-       
-       
-      } = useSelector(projectSelector);
-    
+  const { dataFromParent } = projectId;
+
+  const { projectDetail } = useSelector(projectSelector);
+
   const [state, setState] = React.useState({
     right: false,
   });
+
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -108,19 +106,24 @@ export default function EditProject(projectId) {
     setState({ ...state, [anchor]: open });
   };
   const { data: projectCategory } = useRequest(getProjectCategory);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [description, setDescription] = useState(null);
-  const [alertState, dispatchAlert] = useReducer( 
+  const [alertState, dispatchAlert] = useReducer(
     alertReducer,
     initialAlertState
   );
+  const [project, setProject] = useState({
+    projectName: "",
+    description: "",
+    categoryId: "",
+  }); //
 
-  const [tfValue, setTFValue] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null); //
+  // const [description, setDescription] = useState(null); //
+  // const [tfValue, setTFValue] = useState(null); //
   const dispatch = useDispatch();
 
   const {
-  
     handleSubmit,
+
     formState: { errors },
   } = useForm({
     mode: "onBlur",
@@ -128,35 +131,45 @@ export default function EditProject(projectId) {
      
     },
   });
+  //Neu em ko biet xai react-hook-form thi viet thuan
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProject((current) => {
+      return {
+        ...current,
+        [name]: value,
+      };
+    });
+  };
 
 
-useEffect(() => {
-  if (projectDetail) {
-    const name = projectDetail.projectName
-    setTFValue(name)
-   
-    const desc = projectDetail.description
-    setDescription(desc)
-   
-     if (projectDetail.projectCategory) {
-           const seleccategory = projectDetail?.projectCategory.id
-    setSelectedCategory(seleccategory) 
+  useEffect(() => {
+    if (projectDetail) {
+      setProject(projectDetail);
+      // const name = projectDetail.projectName;
+      // setTFValue(name);
+
+      // const desc = projectDetail.description;
+      // setDescription(desc);
+
+      if (projectDetail.projectCategory) {
+        const seleccategory = projectDetail?.projectCategory.id;
+        setSelectedCategory(seleccategory);
+      }
     }
-
-  }
-},[projectDetail])
-  
-
-
+  }, [projectDetail]);
 
   const onSubmit = async () => {
-    try { 
-       const projectInfo = {
-        id : dataFromParent, 
-        projectName: tfValue,
-        categoryId: selectedCategory,
-        description: description,
-      };
+    const projectInfo = {
+      projectName: project.projectName,
+    description: project.description,
+    categoryId: project.categoryId,
+    id: projectDetail.id
+    }
+    console.log(projectInfo);
+    
+    try {
+
       dispatch(updateProjectThunk(projectInfo))
         .unwrap()
         .then(() => dispatch(getAllProjectsThunk()))
@@ -173,21 +186,14 @@ useEffect(() => {
         });
         return;
       }
-     
-    
-    
-      
+
       // const data = await dispatch(updateProjectThunk(projectInfo)).unwrap();
 
       dispatchAlert({
-        
         type: alertCase.success,
-        payload: 'Edit Successfully',
+        payload: "Edit Successfully",
       });
-
- 
     } catch (error) {
-     
       console.log(error);
       dispatchAlert({
         type: alertCase.error,
@@ -213,15 +219,11 @@ useEffect(() => {
     }
   };
 
-  const watchEditor = (html) => {
-     setDescription(html);
-    
-  };
-
-
+  // const watchEditor = (html) => {
+  //   setDescription(html);
+  // };
 
   const list = (anchor) => (
-    
     <Container sx={{ marginTop: "32px", width: 700 }} maxWidth="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h5" fontWeight={700}>
@@ -239,16 +241,14 @@ useEffect(() => {
               Project Name
             </InputLabel>
             <TextField
-
               size="small"
-              value={tfValue}
-             
-              onChange={(event) => { ;
-                setTFValue(event.target.value) }}
-             
+              value={project?.projectName}
+              name="projectName"
+              // onChange={(event) => {
+              //   setTFValue(event.target.value);
+              // }}
+              onChange={handleChange}
               placeholder="Input your project's name"
-            
-            
               // {...register("projectName", {
               //   required: {
               //     value: true,
@@ -259,14 +259,12 @@ useEffect(() => {
               //     message: "Not contain special character",
               //   },
               // })}
-              
+
               fullWidth
               color={errors.projectName ? "error" : ""}
               error={!!errors.projectName}
-              helperText={errors.projectName?.message}     
-                
+              helperText={errors.projectName?.message}
             />
-   
           </Grid2>
         </Grid2>
         <Grid2 marginTop={2} container>
@@ -276,13 +274,17 @@ useEffect(() => {
               align="left"
               variant="subtitle1"
               fontWeight={700}
-            > 
+            >
               Write description
             </Typography>
           </Grid2>
-          <Grid2 xs={8}>
-            <RichTextEditor value={description} onWatch={(state) => watchEditor(state)} />
-          </Grid2>
+          <textarea name="description" id="" cols="30" rows="10" value={project?.description} onChange={handleChange}></textarea>
+          {/* <Grid2 xs={8}>
+            <RichTextEditor
+              value={project?.description}
+              onWatch={(state) => watchEditor(state)}
+            />
+          </Grid2> */}
         </Grid2>
         <Grid2 marginTop={2} container>
           <Grid2 xs={12}>
@@ -298,7 +300,9 @@ useEffect(() => {
               <CategorySelection>
                 {projectCategory?.map((item) => (
                   <Chip
-                    key={item.id}
+                    key={item.id} 
+                    name="categoryId"
+                    value={item.id}
                     sx={(theme) => ({
                       color:
                         item.projectCategoryName === categoryProjectMap["app"]
@@ -328,7 +332,16 @@ useEffect(() => {
                       },
                       ...activeCategoryStyle(item.id, theme),
                     })}
-                    onClick={() => selectCategoryHandler(item.id)}
+                    onClick={() =>{ selectCategoryHandler(item.id) ;
+                      setProject((current) => {
+                        return {
+                          ...current,
+                          categoryId: item.id
+                        }
+                      })
+                    
+                    }} 
+                    
                     label={item.projectCategoryName}
                   />
                 ))}
@@ -368,15 +381,13 @@ useEffect(() => {
   return (
     <div>
       <React.Fragment key={"right"}>
-        <Button color="success" onClick={
-            toggleDrawer("right", true) 
-          
-    }>
-         
-          <FontAwesomeIcon icon={faPen}   onClick={() => {
-                dispatch(getProjectDetailThunk(dataFromParent))
-                
-                }} />
+        <Button color="success" onClick={toggleDrawer("right", true)}>
+          <FontAwesomeIcon
+            icon={faPen}
+            onClick={() => {
+              dispatch(getProjectDetailThunk(dataFromParent));
+            }}
+          />
         </Button>
         <Drawer
           anchor={"right"}
@@ -390,30 +401,3 @@ useEffect(() => {
   );
 }
 
-
-
-
-// TEST
-// import { useState } from "react";
-// import TextField from "@mui/material/TextField";
-// import Stack from "@mui/material/Stack";
-// import Button from "@mui/material/Button";
-
-// export default function ValueTextField() {
-//   const [tfValue, setTFValue] = useState("Original Val");
-//   return (
-   
-//       <TextField
-//         onChange={(event) =>  { 
-//           console.log(event.target.value);setTFValue(event.target.value)}}
-//         id="filled-1"
-//         label="Dynamic"
-//         variant="outlined"
-      
-//         value={tfValue}
-//         sx={{mb:2}}
-//       />
-   
-  
-//   );
-// }
