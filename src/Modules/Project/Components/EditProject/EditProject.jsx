@@ -30,6 +30,7 @@ import { projectSelector } from '../../../../app/store';
 import {
   updateProjectThunk,
   getProjectDetailThunk,
+  getAllProjectsThunk
 } from "../../slice/projectSlice";
 
 const { getProjectCategory } = projectCategory;
@@ -85,6 +86,7 @@ const alertReducer = (state, { type, payload }) => {
 
 export default function EditProject(projectId) {
     const {dataFromParent} = projectId
+    
     const {
         projectDetail
        
@@ -108,26 +110,61 @@ export default function EditProject(projectId) {
   const { data: projectCategory } = useRequest(getProjectCategory);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState(null);
-  const [alertState, dispatchAlert] = useReducer(
+  const [alertState, dispatchAlert] = useReducer( 
     alertReducer,
     initialAlertState
   );
 
+  const [tfValue, setTFValue] = useState(null);
   const dispatch = useDispatch();
 
   const {
-    register,
+  
     handleSubmit,
     formState: { errors },
   } = useForm({
     mode: "onBlur",
     defaultValues: {
-      projectName: projectDetail.projectName
+     
     },
   });
 
-  const onSubmit = async ({ projectName }) => {
-    try {
+
+useEffect(() => {
+  if (projectDetail) {
+    const name = projectDetail.projectName
+    setTFValue(name)
+   
+    const desc = projectDetail.description
+    setDescription(desc)
+   
+     if (projectDetail.projectCategory) {
+           const seleccategory = projectDetail?.projectCategory.id
+    setSelectedCategory(seleccategory) 
+    }
+
+  }
+},[projectDetail])
+  
+
+
+
+  const onSubmit = async () => {
+    try { 
+       const projectInfo = {
+        id : dataFromParent, 
+        projectName: tfValue,
+        categoryId: selectedCategory,
+        description: description,
+      };
+      dispatch(updateProjectThunk(projectInfo))
+        .unwrap()
+        .then(() => dispatch(getAllProjectsThunk()))
+        .catch((error) => {
+          throw error;
+        });
+
+
       dispatchAlert({ type: alertCase.loading });
       if (!selectedCategory) {
         dispatchAlert({
@@ -136,21 +173,21 @@ export default function EditProject(projectId) {
         });
         return;
       }
-      const formattedName = projectName.replace("'", "\\'");
-      const projectInfo = {
-        projectName,
-        selectedCategory,
-        description,
-      };
-
+     
+    
+    
       
-      const data = await dispatch(updateProjectThunk(projectInfo)).unwrap();
+      // const data = await dispatch(updateProjectThunk(projectInfo)).unwrap();
+
       dispatchAlert({
+        
         type: alertCase.success,
+        payload: 'Edit Successfully',
       });
 
-      return data;
+ 
     } catch (error) {
+     
       console.log(error);
       dispatchAlert({
         type: alertCase.error,
@@ -178,9 +215,13 @@ export default function EditProject(projectId) {
 
   const watchEditor = (html) => {
      setDescription(html);
+    
   };
 
+
+
   const list = (anchor) => (
+    
     <Container sx={{ marginTop: "32px", width: 700 }} maxWidth="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h5" fontWeight={700}>
@@ -198,24 +239,34 @@ export default function EditProject(projectId) {
               Project Name
             </InputLabel>
             <TextField
+
               size="small"
-              defaultValues={projectDetail.projectName}
+              value={tfValue}
+             
+              onChange={(event) => { ;
+                setTFValue(event.target.value) }}
+             
               placeholder="Input your project's name"
-              {...register("projectName", {
-                required: {
-                  value: true,
-                  message: "This is required",
-                },
-                pattern: {
-                  value: /^[^'"!@#$%^&*()?,:;~`+=-]*$/,
-                  message: "Not contain special character",
-                },
-              })}
+            
+            
+              // {...register("projectName", {
+              //   required: {
+              //     value: true,
+              //     message: "This is required",
+              //   },
+              //   pattern: {
+              //     value: /^[^'"!@#$%^&*()?,:;~`+=-]*$/,
+              //     message: "Not contain special character",
+              //   },
+              // })}
+              
               fullWidth
               color={errors.projectName ? "error" : ""}
               error={!!errors.projectName}
-              helperText={errors.projectName?.message}      
+              helperText={errors.projectName?.message}     
+                
             />
+   
           </Grid2>
         </Grid2>
         <Grid2 marginTop={2} container>
@@ -230,7 +281,7 @@ export default function EditProject(projectId) {
             </Typography>
           </Grid2>
           <Grid2 xs={8}>
-            <RichTextEditor onWatch={(state) => watchEditor(state)} />
+            <RichTextEditor value={description} onWatch={(state) => watchEditor(state)} />
           </Grid2>
         </Grid2>
         <Grid2 marginTop={2} container>
@@ -338,3 +389,31 @@ export default function EditProject(projectId) {
     </div>
   );
 }
+
+
+
+
+// TEST
+// import { useState } from "react";
+// import TextField from "@mui/material/TextField";
+// import Stack from "@mui/material/Stack";
+// import Button from "@mui/material/Button";
+
+// export default function ValueTextField() {
+//   const [tfValue, setTFValue] = useState("Original Val");
+//   return (
+   
+//       <TextField
+//         onChange={(event) =>  { 
+//           console.log(event.target.value);setTFValue(event.target.value)}}
+//         id="filled-1"
+//         label="Dynamic"
+//         variant="outlined"
+      
+//         value={tfValue}
+//         sx={{mb:2}}
+//       />
+   
+  
+//   );
+// }

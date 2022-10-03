@@ -28,6 +28,7 @@ const projectAPIs = {
   },
 
   createProject: (projectInfo) => {
+    console.log(projectInfo);
     return axiosClient.post('Project/createProjectAuthorize', projectInfo);
   },
 
@@ -38,11 +39,15 @@ const projectAPIs = {
       params,
     });
   },
-  updateProject: (id) => {
-    const params = new URLSearchParams();
-    params.append('projectId', id);
+  updateProject: (projectInfo) => {
+    
+   console.log(projectInfo);
     return axiosClient.put('Project/updateProject', {
-      params,
+      params: {
+        projectId: projectInfo.id ,
+        projectUpdate : projectInfo
+      }
+      
     });
   },
  

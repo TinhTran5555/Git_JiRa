@@ -80,7 +80,7 @@ const alertReducer = (state, { type, payload }) => {
 const CreateProject = () => {
   const { data: projectCategory } = useRequest(getProjectCategory);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [description, setDescription] = useState(null);
+  const [description, setDescription] = useState("ababcbas");
   const [alertState, dispatchAlert] = useReducer(
     alertReducer,
     initialAlertState
@@ -116,8 +116,9 @@ const CreateProject = () => {
         description,
       };
 
-      console.log(projectInfo);
+      
       const data = await dispatch(createProjectThunk(projectInfo)).unwrap();
+      console.log(projectInfo);
       dispatchAlert({
         type: alertCase.success,
       });

@@ -6,8 +6,10 @@ const thunk = {
     createAsyncThunk(name, async (params, { rejectWithValue }) => {
       try {
         const data = await fn(params);
+       
         return data;
       } catch (error) {
+        
         return rejectWithValue(error);
       }
     }),

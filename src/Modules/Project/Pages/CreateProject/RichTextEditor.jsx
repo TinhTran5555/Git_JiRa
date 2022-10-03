@@ -7,8 +7,9 @@ import { convertToHTML } from 'draft-convert';
 
 export default class RichTextEditor extends React.Component {
   constructor(props) {
+    console.log(props);
     super(props);
-    this.state = { editorState: EditorState.createEmpty() };
+    this.state = { editorState:  EditorState.createEmpty() };
 
     this.focus = () => this.refs.editor.focus();
     this.onChange = (editorState) => this.setState({ editorState });
@@ -82,7 +83,8 @@ export default class RichTextEditor extends React.Component {
           onToggle={this.toggleInlineStyle}
         />
         <Box className={className} onClick={this.focus}>
-          <Editor
+         
+          <Editor 
             blockStyleFn={getBlockStyle}
             customStyleMap={styleMap}
             editorState={editorState}
@@ -93,6 +95,7 @@ export default class RichTextEditor extends React.Component {
             ref='editor'
             spellCheck={true}
           />
+         
         </Box>
         
       </Box>
@@ -198,7 +201,10 @@ const InlineStyleControls = (props) => {
           onToggle={props.onToggle}
           style={type.style}
         />
-      ))}
+        
+      ))} 
     </div>
   );
 };
+
+
